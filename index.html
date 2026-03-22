@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yellow Land</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Стартовое окно выбора графики -->
+    <div id="graphics-selector">
+        <div class="selector-content">
+            <h1>Yellow Land</h1>
+            <p class="subtitle">Выберите режим графики</p>
+            <div class="graphics-options">
+                <button class="graphics-btn" data-mode="low">
+                    <span class="mode-name">Низкий</span>
+                    <span class="mode-desc">Без теней и сглаживания</span>
+                </button>
+                <button class="graphics-btn" data-mode="medium">
+                    <span class="mode-name">Средний</span>
+                    <span class="mode-desc">Сглаживание включено</span>
+                </button>
+                <button class="graphics-btn" data-mode="high">
+                    <span class="mode-name">Высокий</span>
+                    <span class="mode-desc">Все улучшения включены</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Основное меню паузы -->
+    <div id="blocker">
+        <div id="instructions">
+            <h2>Yellow Land</h2>
+            <p><strong>WASD</strong> - перемещение</p>
+            <p><strong>Мышь</strong> - обзор</p>
+            <p><strong>Пробел</strong> - прыжок</p>
+            <p><strong>E или ПКМ</strong> - взаимодействие с NPC (когда рядом)</p>
+            <p><strong>Esc</strong> - пауза</p>
+            <div class="menu-buttons">
+                <button id="resume-btn">Продолжить</button>
+                <button id="graphics-menu-btn">Графика</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Окно смены графики в меню паузы -->
+    <div id="graphics-menu" class="hidden">
+        <div class="selector-content">
+            <h2>Настройки графики</h2>
+            <p class="current-mode">Текущий режим: <span id="current-graphics-mode">-</span></p>
+            <div class="graphics-options">
+                <button class="graphics-btn" data-mode="low">
+                    <span class="mode-name">Низкий</span>
+                    <span class="mode-desc">Без теней и сглаживания</span>
+                </button>
+                <button class="graphics-btn" data-mode="medium">
+                    <span class="mode-name">Средний</span>
+                    <span class="mode-desc">Сглаживание включено</span>
+                </button>
+                <button class="graphics-btn" data-mode="high">
+                    <span class="mode-name">Высокий</span>
+                    <span class="mode-desc">Все улучшения включены</span>
+                </button>
+            </div>
+            <button class="close-btn" id="close-graphics-menu">Закрыть</button>
+        </div>
+    </div>
+
+    <div id="crosshair" class="hidden"></div>
+    <div id="npc-message">Привет! Я фанат новой земли!</div>
+
+    <script src="three.min.js"></script>
+    <script src="main.js"></script>
+</body>
+</html>

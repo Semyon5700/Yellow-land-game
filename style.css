@@ -1,0 +1,264 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    overflow: hidden;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* === Стартовое окно выбора графики === */
+#graphics-selector {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+}
+
+#graphics-selector.hidden {
+    display: none;
+}
+
+/* === Окно выбора графики в меню паузы === */
+#graphics-menu {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 50;
+}
+
+#graphics-menu.hidden {
+    display: none;
+}
+
+.selector-content {
+    background-color: rgba(255, 255, 255, 0.95);
+    padding: 40px 60px;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+}
+
+.selector-content h1 {
+    color: #ffcc00;
+    font-size: 48px;
+    margin-bottom: 10px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.selector-content h2 {
+    color: #333;
+    font-size: 32px;
+    margin-bottom: 15px;
+}
+
+.subtitle {
+    color: #666;
+    font-size: 20px;
+    margin-bottom: 30px;
+}
+
+.current-mode {
+    color: #555;
+    font-size: 16px;
+    margin-bottom: 20px;
+}
+
+.current-mode span {
+    font-weight: bold;
+    color: #ffcc00;
+}
+
+/* === Кнопки выбора графики === */
+.graphics-options {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.graphics-btn {
+    background: linear-gradient(135deg, #ffcc00 0%, #ffaa00 100%);
+    border: none;
+    padding: 20px 30px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 280px;
+}
+
+.graphics-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 20px rgba(255, 204, 0, 0.5);
+}
+
+.graphics-btn:active {
+    transform: translateY(-1px);
+}
+
+.mode-name {
+    font-size: 22px;
+    font-weight: bold;
+    color: #333;
+}
+
+.mode-desc {
+    font-size: 14px;
+    color: #666;
+    margin-top: 5px;
+}
+
+/* === Кнопка закрытия === */
+.close-btn {
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.close-btn:hover {
+    background-color: #c0392b;
+}
+
+/* === Основное меню паузы === */
+#blocker {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+}
+
+#blocker.hidden {
+    display: none;
+}
+
+#instructions {
+    background-color: rgba(255, 255, 255, 0.95);
+    padding: 40px;
+    border-radius: 15px;
+    text-align: center;
+    font-size: 18px;
+    color: #333;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+}
+
+#instructions h2 {
+    color: #ffcc00;
+    font-size: 36px;
+    margin-bottom: 20px;
+}
+
+#instructions p {
+    margin: 10px 0;
+}
+
+/* === Кнопки меню паузы === */
+.menu-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 25px;
+}
+
+.menu-buttons button {
+    background: linear-gradient(135deg, #ffcc00 0%, #ffaa00 100%);
+    border: none;
+    padding: 15px 40px;
+    border-radius: 8px;
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.menu-buttons button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255, 204, 0, 0.4);
+}
+
+.menu-buttons button:active {
+    transform: translateY(0);
+}
+
+/* === Прицел === */
+#crosshair {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 20px;
+    height: 20px;
+    z-index: 5;
+    pointer-events: none;
+}
+
+#crosshair.hidden {
+    display: none;
+}
+
+#crosshair::before,
+#crosshair::after {
+    content: '';
+    position: absolute;
+    background-color: rgba(255, 255, 255, 0.8);
+}
+
+#crosshair::before {
+    width: 2px;
+    height: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+#crosshair::after {
+    width: 20px;
+    height: 2px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+/* === Сообщение NPC === */
+#npc-message {
+    position: absolute;
+    background-color: rgba(255, 200, 0, 0.95);
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+    z-index: 5;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    border: 2px solid #ff8800;
+    white-space: nowrap;
+    pointer-events: none;
+    transform: translate(-50%, -100%);
+    display: none;
+}
