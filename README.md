@@ -1,2 +1,23 @@
-# Yellow-land-game
-Yellow land game
+# Yellow Land
+
+## Лицензия
+
+Этот проект распространяется под лицензией **GNU General Public License v3.0 (GPL-3.0)**.
+
+Полный текст лицензии доступен в файле [LICENSE](LICENSE) или на сайте: https://www.gnu.org/licenses/gpl-3.0.html
+
+## Авторы и правообладатели
+
+### Основной автор
+- **Semyon5700** — разработка игровой логики, интерфейса, NPC поведения, системы графических настроек
+
+### Используемые библиотеки и их лицензии
+
+#### Three.js
+- **Авторы**: Ricardo Cabello (Mr.doob) и команда разработчиков Three.js
+- **Лицензия**: MIT License
+- **Copyright © 2010-2025 three.js authors
+- **Исходный код**: https://github.com/mrdoob/three.js/
+- **Используемая версия**: r128
+
+Текст лицензии MIT (Three.js) (Mit License находится в файле Three.js.meet.License)
