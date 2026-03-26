@@ -167,9 +167,9 @@ function init() {
 // Создание человеческой модели из примитивов
 function createHumanModel(color) {
     const humanGroup = new THREE.Group();
-    
+
     const material = createMaterial(color);
-    
+
     // Голова
     const headGeometry = new THREE.SphereGeometry(1, 16, 16);
     const head = new THREE.Mesh(headGeometry, material);
@@ -178,7 +178,7 @@ function createHumanModel(color) {
     head.receiveShadow = currentGraphicsMode === 'high';
     humanGroup.add(head);
     objectsWithMaterials.push(head);
-    
+
     // Туловище
     const bodyGeometry = new THREE.BoxGeometry(2.5, 3, 1.5);
     const body = new THREE.Mesh(bodyGeometry, material);
@@ -187,10 +187,10 @@ function createHumanModel(color) {
     body.receiveShadow = currentGraphicsMode === 'high';
     humanGroup.add(body);
     objectsWithMaterials.push(body);
-    
+
     // Руки (левая и правая)
     const armGeometry = new THREE.CylinderGeometry(0.3, 0.3, 2.5, 8);
-    
+
     const leftArm = new THREE.Mesh(armGeometry, material);
     leftArm.position.set(-1.8, 1.5, 0);
     leftArm.rotation.z = 0.2;
@@ -198,7 +198,8 @@ function createHumanModel(color) {
     leftArm.receiveShadow = currentGraphicsMode === 'high';
     humanGroup.add(leftArm);
     objectsWithMaterials.push(leftArm);
-    
+
+    // Правая рука
     const rightArm = new THREE.Mesh(armGeometry, material);
     rightArm.position.set(1.8, 1.5, 0);
     rightArm.rotation.z = -0.2;
@@ -206,24 +207,24 @@ function createHumanModel(color) {
     rightArm.receiveShadow = currentGraphicsMode === 'high';
     humanGroup.add(rightArm);
     objectsWithMaterials.push(rightArm);
-    
+
     // Ноги (левая и правая)
     const legGeometry = new THREE.CylinderGeometry(0.4, 0.4, 2.5, 8);
-    
+
     const leftLeg = new THREE.Mesh(legGeometry, material);
     leftLeg.position.set(-0.7, -1.25, 0);
     leftLeg.castShadow = currentGraphicsMode === 'high';
     leftLeg.receiveShadow = currentGraphicsMode === 'high';
     humanGroup.add(leftLeg);
     objectsWithMaterials.push(leftLeg);
-    
+
     const rightLeg = new THREE.Mesh(legGeometry, material);
     rightLeg.position.set(0.7, -1.25, 0);
     rightLeg.castShadow = currentGraphicsMode === 'high';
     rightLeg.receiveShadow = currentGraphicsMode === 'high';
     humanGroup.add(rightLeg);
     objectsWithMaterials.push(rightLeg);
-    
+
     // Сохраняем ссылки на части тела для анимации
     humanGroup.userData = {
         leftArm,
@@ -232,7 +233,7 @@ function createHumanModel(color) {
         rightLeg,
         walkTime: 0
     };
-    
+
     return humanGroup;
 }
 
@@ -248,49 +249,89 @@ function createMaterial(color) {
 // Создание дома для деревни
 function createHouse(x, z) {
     const houseGroup = new THREE.Group();
-    
-    // Стены дома
-    const wallsGeometry = new THREE.BoxGeometry(8, 6, 8);
+
+    // Стены дома (увеличено в 1.5 раза от оригинала)
+    const wallsGeometry = new THREE.BoxGeometry(12, 18, 12);
     const wallsMaterial = createMaterial(0xdeb887);
     const walls = new THREE.Mesh(wallsGeometry, wallsMaterial);
-    walls.position.y = 3;
+    walls.position.y = 9;
     walls.castShadow = currentGraphicsMode === 'high';
     walls.receiveShadow = currentGraphicsMode === 'high';
     houseGroup.add(walls);
     objectsWithMaterials.push(walls);
-    
-    // Крыша (пирамида)
-    const roofGeometry = new THREE.ConeGeometry(6, 4, 4);
+
+    // Крыша (пирамида, увеличена высота в 3 раза)
+    const roofGeometry = new THREE.ConeGeometry(9, 12, 4);
     const roofMaterial = createMaterial(0x8b4513);
     const roof = new THREE.Mesh(roofGeometry, roofMaterial);
-    roof.position.y = 8;
+    roof.position.y = 24;
     roof.rotation.y = Math.PI / 4;
     roof.castShadow = currentGraphicsMode === 'high';
     roof.receiveShadow = currentGraphicsMode === 'high';
     houseGroup.add(roof);
     objectsWithMaterials.push(roof);
-    
+
     houseGroup.position.set(x, 0, z);
     scene.add(houseGroup);
     villageBuildings.push(houseGroup);
-    
+
     // Добавляем в препятствия для коллизий
-    obstacles.push({ x, z, radius: 5 });
+    obstacles.push({ x, z, radius: 8, type: 'house' });
 }
 
 // Создание деревни
 function createVillage() {
-    // Создаём несколько домов в центре острова (со смещением)
-    const housePositions = [
-        { x: -30, z: -30 },
-        { x: -40, z: -25 },
-        { x: -35, z: -40 },
-        { x: -25, z: -35 },
-        { x: -45, z: -35 }
-    ];
+    // Создаём дорогу в центре деревни
+    const roadGeometry = new THREE.PlaneGeometry(40, 40);
+    const roadMaterial = createMaterial(0x8b7355);
+    const road = new THREE.Mesh(roadGeometry, roadMaterial);
+    road.rotation.x = -Math.PI / 2;
+    road.position.set(-35, 0.1, -35); // Чуть выше земли
+    road.receiveShadow = currentGraphicsMode === 'high';
+    scene.add(road);
+    objectsWithMaterials.push(road);
+
+    // Создаём клочок земли с деревом в центре деревни (на тропинке)
+    const groundGeometry = new THREE.CircleGeometry(4, 8);
+    const groundMaterial = createMaterial(0x228b22);
+    const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+    ground.rotation.x = -Math.PI / 2;
+    ground.position.set(-35, 0.15, -35); // Чуть выше дороги
+    ground.receiveShadow = currentGraphicsMode === 'high';
+    scene.add(ground);
+    objectsWithMaterials.push(ground);
     
+    // Добавляем дерево в центре деревни
+    createTree(-35, -35);
+
+    // Создаём дома с большими расстояниями (вокруг дороги)
+    // Проверяем каждое место на пересечение с горами
+    const housePositions = [
+        { x: -55, z: -55 },
+        { x: -15, z: -55 },
+        { x: -55, z: -15 },
+        { x: -15, z: -15 },
+        { x: -65, z: -35 },
+        { x: -5, z: -35 }
+    ];
+
     housePositions.forEach(pos => {
-        createHouse(pos.x, pos.z);
+        // Проверяем, не пересекается ли позиция с горами
+        let overlapsWithMountain = false;
+        for (const obstacle of obstacles) {
+            if (obstacle.type === 'mountain') {
+                const dist = Math.sqrt((pos.x - obstacle.x) ** 2 + (pos.z - obstacle.z) ** 2);
+                if (dist < obstacle.radius + 8) { // 8 - радиус дома
+                    overlapsWithMountain = true;
+                    break;
+                }
+            }
+        }
+        
+        // Создаём дом только если нет пересечения с горами
+        if (!overlapsWithMountain) {
+            createHouse(pos.x, pos.z);
+        }
     });
 }
 
@@ -335,46 +376,142 @@ function createMountain(x, z, size = 1) {
     mountain.receiveShadow = currentGraphicsMode === 'high';
     scene.add(mountain);
     objectsWithMaterials.push(mountain);
-    
+
     // Добавляем в препятствия для коллизий
-    obstacles.push({ x, z, radius: 12 * size });
+    obstacles.push({ x, z, radius: 12 * size, type: 'mountain' });
 }
 
 // Генерация деревьев и гор
 function generateNature() {
     // Зоны для генерации (исключая центр с деревней и спавн)
-    const villageZone = { x: -35, z: -35, radius: 25 };
+    // Зона деревни увеличена в 2 раза (было 25, стало 50)
+    const villageZone = { x: -35, z: -35, radius: 50 };
     const spawnZone = { x: 0, z: 10, radius: 15 };
-    
-    // Генерируем деревья
-    for (let i = 0; i < 50; i++) {
-        const angle = Math.random() * Math.PI * 2;
-        const radius = Math.random() * (islandSize / 2 - 10);
-        const x = Math.cos(angle) * radius;
-        const z = Math.sin(angle) * radius;
-        
-        // Проверяем, не слишком ли близко к деревне или спавну
-        const distToVillage = Math.sqrt((x - villageZone.x) ** 2 + (z - villageZone.z) ** 2);
-        const distToSpawn = Math.sqrt((x - spawnZone.x) ** 2 + (z - spawnZone.z) ** 2);
-        
-        if (distToVillage > villageZone.radius + 5 && distToSpawn > spawnZone.radius + 5) {
-            createTree(x, z);
-        }
-    }
-    
-    // Генерируем горы по краям острова
+
+    // Сначала генерируем горы и сохраняем их позиции
+    const mountainPositions = [];
     for (let i = 0; i < 8; i++) {
         const angle = Math.random() * Math.PI * 2;
         const radius = islandSize / 2 - 15 - Math.random() * 20;
         const x = Math.cos(angle) * radius;
         const z = Math.sin(angle) * radius;
-        
+
         const distToVillage = Math.sqrt((x - villageZone.x) ** 2 + (z - villageZone.z) ** 2);
         const distToSpawn = Math.sqrt((x - spawnZone.x) ** 2 + (z - spawnZone.z) ** 2);
-        
+
         if (distToVillage > villageZone.radius + 10 && distToSpawn > spawnZone.radius + 10) {
             const size = 0.8 + Math.random() * 0.5;
             createMountain(x, z, size);
+            // Сохраняем позицию горы с её радиусом
+            mountainPositions.push({ x, z, radius: 12 * size });
+        }
+    }
+
+    // Генерируем деревья с проверкой на пересечение с горами
+    for (let i = 0; i < 50; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const radius = Math.random() * (islandSize / 2 - 10);
+        const x = Math.cos(angle) * radius;
+        const z = Math.sin(angle) * radius;
+
+        // Проверяем, не слишком ли близко к деревне или спавну
+        const distToVillage = Math.sqrt((x - villageZone.x) ** 2 + (z - villageZone.z) ** 2);
+        const distToSpawn = Math.sqrt((x - spawnZone.x) ** 2 + (z - spawnZone.z) ** 2);
+
+        if (distToVillage > villageZone.radius + 5 && distToSpawn > spawnZone.radius + 5) {
+            // Проверяем пересечение с горами
+            let overlapsWithMountain = false;
+            for (const mountain of mountainPositions) {
+                const distToMountain = Math.sqrt((x - mountain.x) ** 2 + (z - mountain.z) ** 2);
+                // Если дерево слишком близко к горе (радиус горы + радиус дерева)
+                if (distToMountain < mountain.radius + 2) {
+                    overlapsWithMountain = true;
+                    break;
+                }
+            }
+
+            // Создаём дерево только если нет пересечения с горами
+            if (!overlapsWithMountain) {
+                createTree(x, z);
+            }
+        }
+    }
+
+    // Добавляем контролируемые деревья в зоне деревни (без гор, точно не заденут дома)
+    addVillageTrees(villageZone);
+
+    // Очищаем зону деревни от гор и лишних деревьев (кроме центрального дерева)
+    clearVillageZone(villageZone);
+}
+
+// Добавление контролируемых деревьев в зоне деревни
+function addVillageTrees(villageZone) {
+    // Позиции для деревьев вокруг деревни (безопасные места)
+    const treePositions = [
+        { x: -80, z: -35 },
+        { x: -55, z: -80 },
+        { x: -15, z: -80 },
+        { x: 10, z: -35 },
+        { x: 10, z: -80 },
+        { x: -80, z: -80 }
+    ];
+
+    treePositions.forEach(pos => {
+        createTree(pos.x, pos.z);
+    });
+}
+
+// Очистка зоны деревни от гор и лишних деревьев
+function clearVillageZone(villageZone) {
+    // Удаляем горы из зоны деревни
+    for (let i = obstacles.length - 1; i >= 0; i--) {
+        const obstacle = obstacles[i];
+        const distToVillage = Math.sqrt((obstacle.x - villageZone.x) ** 2 + (obstacle.z - villageZone.z) ** 2);
+        
+        // Если гора в зоне деревни
+        if (obstacle.type === 'mountain' && distToVillage < villageZone.radius) {
+            // Находим и удаляем меш горы из сцены
+            for (let j = scene.children.length - 1; j >= 0; j--) {
+                const child = scene.children[j];
+                if (child.type === 'Mesh' && child.geometry && child.geometry.type === 'ConeGeometry') {
+                    const worldPos = new THREE.Vector3();
+                    child.getWorldPosition(worldPos);
+                    const distToObstacle = Math.sqrt((worldPos.x - obstacle.x) ** 2 + (worldPos.z - obstacle.z) ** 2);
+                    if (distToObstacle < 1) {
+                        scene.remove(child);
+                        break;
+                    }
+                }
+            }
+            obstacles.splice(i, 1);
+        }
+    }
+    
+    // Удаляем деревья из зоны деревни (кроме центрального -35, -35)
+    for (let i = obstacles.length - 1; i >= 0; i--) {
+        const obstacle = obstacles[i];
+        const distToVillage = Math.sqrt((obstacle.x - villageZone.x) ** 2 + (obstacle.z - villageZone.z) ** 2);
+        
+        // Если дерево в зоне деревни и это не центральное дерево
+        if (obstacle.type !== 'house' && obstacle.type !== 'mountain' && distToVillage < villageZone.radius - 5) {
+            // Проверяем, не центральное ли это дерево
+            const distToCenter = Math.sqrt((obstacle.x + 35) ** 2 + (obstacle.z + 35) ** 2);
+            if (distToCenter > 3) { // Не центральное дерево
+                // Находим и удаляем меш дерева из сцены
+                for (let j = scene.children.length - 1; j >= 0; j--) {
+                    const child = scene.children[j];
+                    if (child.type === 'Group') {
+                        const worldPos = new THREE.Vector3();
+                        child.getWorldPosition(worldPos);
+                        const distToObstacle = Math.sqrt((worldPos.x - obstacle.x) ** 2 + (worldPos.z - obstacle.z) ** 2);
+                        if (distToObstacle < 1) {
+                            scene.remove(child);
+                            break;
+                        }
+                    }
+                }
+                obstacles.splice(i, 1);
+            }
         }
     }
 }
@@ -596,18 +733,63 @@ function onWindowResize() {
 // Проверка коллизии с препятствиями
 function checkCollision(newX, newZ) {
     const playerRadius = 2;
-    
+
     for (const obstacle of obstacles) {
         const dx = newX - obstacle.x;
         const dz = newZ - obstacle.z;
         const distance = Math.sqrt(dx * dx + dz * dz);
-        
+
         if (distance < playerRadius + obstacle.radius) {
             return true; // Столкновение
         }
     }
+
+    // Проверяем коллизии с NPC (NPC - твёрдые объекты)
+    const npcRadius = 2;
+    const npcs = [npcOrange, npcPurple, npcGreen, npcPink];
     
+    for (const npc of npcs) {
+        const dx = newX - npc.position.x;
+        const dz = newZ - npc.position.z;
+        const distance = Math.sqrt(dx * dx + dz * dz);
+
+        if (distance < playerRadius + npcRadius) {
+            return true; // Столкновение с NPC
+        }
+    }
+
     return false;
+}
+
+// Проверка и обработка коллизий с NPC (толкание)
+function checkNPCCollisions() {
+    const playerRadius = 2.5;
+    const npcRadius = 2;
+    const pushForce = 0.15; // Сила толчка
+
+    const npcs = [npcOrange, npcPurple, npcGreen, npcPink];
+
+    for (const npc of npcs) {
+        const dx = player.position.x - npc.position.x;
+        const dz = player.position.z - npc.position.z;
+        const distance = Math.sqrt(dx * dx + dz * dz);
+
+        // Если есть столкновение
+        if (distance < playerRadius + npcRadius) {
+            // Вычисляем направление отталкивания
+            const pushDirX = dx / distance;
+            const pushDirZ = dz / distance;
+
+            // Толкаем NPC
+            npc.position.x -= pushDirX * pushForce;
+            npc.position.z -= pushDirZ * pushForce;
+
+            // Ограничиваем позицию NPC
+            const limit = islandSize / 2 - 5;
+            npc.position.x = Math.max(-limit, Math.min(limit, npc.position.x));
+            npc.position.z = Math.max(-limit, Math.min(limit, npc.position.z));
+        }
+    }
 }
 
 function updatePlayer() {
@@ -690,16 +872,20 @@ function updatePlayer() {
         // Камера от первого лица (на уровне глаз)
         const eyeHeight = 3.5;
         camera.position.x = player.position.x;
+        camera.position.y = player.position.y + eyeHeight;
         camera.position.z = player.position.z;
-        camera.position.y = player.position.y + eyeHeight + pitch * 2;
-        
-        // Направляем камеру в сторону взгляда
+
+        // Вычисляем направление взгляда с учётом yaw и pitch
         const lookDist = 10;
-        camera.lookAt(
-            player.position.x + Math.sin(yaw) * lookDist,
-            player.position.y + eyeHeight + pitch * 2,
-            player.position.z + Math.cos(yaw) * lookDist
-        );
+        const lookX = camera.position.x + Math.sin(yaw) * lookDist;
+        const lookY = camera.position.y + Math.tan(pitch) * lookDist;
+        const lookZ = camera.position.z + Math.cos(yaw) * lookDist;
+
+        // Направляем камеру в сторону взгляда
+        camera.lookAt(lookX, lookY, lookZ);
+
+        // Проверяем коллизии с NPC (толкание)
+        checkNPCCollisions();
     }
 }
 
