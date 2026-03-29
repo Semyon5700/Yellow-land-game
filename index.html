@@ -71,6 +71,48 @@
     <div id="crosshair" class="hidden"></div>
     <div id="npc-message">Привет! Я фанат новой земли!</div>
     <div id="fps-counter">FPS: 60</div>
+    
+    <!-- Индикатор режима полёта -->
+    <div id="fly-indicator" class="hidden">
+        <span>✈ РЕЖИМ ПОЛЁТА</span>
+        <p>Двойное нажатие пробела для отключения</p>
+    </div>
+    
+    <!-- Индикатор платформы -->
+    <div id="platform-indicator" class="hidden">
+        <span>🟣 ПЛАТФОРМА АКТИВНА</span>
+        <p>Спрыгни чтобы деактивировать</p>
+    </div>
+    
+    <!-- Подсказка кнопки телепортации -->
+    <div id="teleport-prompt" class="hidden">
+        <span>Нажми E для телепортации</span>
+    </div>
+    
+    <!-- Подсказка подбора мяча -->
+    <div id="ball-pickup-prompt" class="hidden">
+        <span>Нажми E чтобы взять мяч</span>
+    </div>
+    
+    <!-- Подсказка броска мяча -->
+    <div id="ball-throw-prompt" class="hidden">
+        <span>Нажми E чтобы бросить мяч</span>
+    </div>
+    
+    <!-- Диалоговое окно -->
+    <div id="dialog-window" class="hidden">
+        <div class="dialog-content">
+            <div class="dialog-speaker">
+                <span id="dialog-speaker-name">Оранжевый NPC</span>
+            </div>
+            <div class="dialog-text" id="dialog-text">
+                Привет! Я фанат новой земли!
+            </div>
+            <div class="dialog-options" id="dialog-options">
+                <!-- Кнопки будут добавлены через JS -->
+            </div>
+        </div>
+    </div>
 
     <script src="three.min.js"></script>
     <script src="main.js"></script>
