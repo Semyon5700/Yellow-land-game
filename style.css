@@ -278,3 +278,216 @@ body {
     z-index: 10;
     pointer-events: none;
 }
+
+/* === Индикатор режима полёта === */
+#fly-indicator {
+    position: absolute;
+    top: 50px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, #00bfff 0%, #0066ff 100%);
+    color: white;
+    padding: 15px 30px;
+    border-radius: 10px;
+    text-align: center;
+    z-index: 10;
+    box-shadow: 0 4px 20px rgba(0, 150, 255, 0.5);
+    animation: pulse 2s infinite;
+}
+
+#fly-indicator.hidden {
+    display: none;
+}
+
+#fly-indicator span {
+    display: block;
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+#fly-indicator p {
+    font-size: 12px;
+    opacity: 0.9;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: translateX(-50%) scale(1); }
+    50% { transform: translateX(-50%) scale(1.05); }
+}
+
+/* === Индикатор платформы === */
+#platform-indicator {
+    position: absolute;
+    top: 50px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, #9932ff 0%, #6600cc 100%);
+    color: white;
+    padding: 15px 30px;
+    border-radius: 10px;
+    text-align: center;
+    z-index: 10;
+    box-shadow: 0 4px 20px rgba(153, 50, 255, 0.5);
+    animation: pulse 2s infinite;
+}
+
+#platform-indicator.hidden {
+    display: none;
+}
+
+#platform-indicator span {
+    display: block;
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+#platform-indicator p {
+    font-size: 12px;
+    opacity: 0.9;
+}
+
+/* === Подсказка телепортации === */
+#teleport-prompt {
+    position: absolute;
+    top: 150px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, #ff00ff 0%, #cc00cc 100%);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    text-align: center;
+    z-index: 10;
+    box-shadow: 0 4px 15px rgba(255, 0, 255, 0.5);
+}
+
+#teleport-prompt.hidden {
+    display: none;
+}
+
+#teleport-prompt span {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+/* === Подсказка подбора мяча === */
+#ball-pickup-prompt {
+    position: absolute;
+    top: 200px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, #00aa00 0%, #008800 100%);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    text-align: center;
+    z-index: 10;
+    box-shadow: 0 4px 15px rgba(0, 170, 0, 0.5);
+}
+
+#ball-pickup-prompt.hidden {
+    display: none;
+}
+
+#ball-pickup-prompt span {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+/* === Подсказка броска мяча === */
+#ball-throw-prompt {
+    position: absolute;
+    top: 200px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, #ff6600 0%, #cc4400 100%);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    text-align: center;
+    z-index: 10;
+    box-shadow: 0 4px 15px rgba(255, 102, 0, 0.5);
+}
+
+#ball-throw-prompt.hidden {
+    display: none;
+}
+
+#ball-throw-prompt span {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+/* === Диалоговое окно === */
+#dialog-window {
+    position: absolute;
+    bottom: 50px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 600px;
+    max-width: 90%;
+    z-index: 20;
+}
+
+#dialog-window.hidden {
+    display: none;
+}
+
+.dialog-content {
+    background: linear-gradient(135deg, rgba(30, 30, 50, 0.95) 0%, rgba(20, 20, 40, 0.95) 100%);
+    border: 3px solid #ffcc00;
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7);
+}
+
+.dialog-speaker {
+    background: linear-gradient(135deg, #ff8800 0%, #ff6600 100%);
+    padding: 8px 15px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    display: inline-block;
+}
+
+#dialog-speaker-name {
+    color: white;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.dialog-text {
+    color: #ffffff;
+    font-size: 18px;
+    line-height: 1.5;
+    margin-bottom: 20px;
+    min-height: 50px;
+}
+
+.dialog-options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.dialog-option-btn {
+    background: linear-gradient(135deg, rgba(255, 204, 0, 0.2) 0%, rgba(255, 170, 0, 0.2) 100%);
+    border: 2px solid #ffcc00;
+    color: #ffcc00;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: left;
+}
+
+.dialog-option-btn:hover {
+    background: linear-gradient(135deg, rgba(255, 204, 0, 0.4) 0%, rgba(255, 170, 0, 0.4) 100%);
+    transform: translateX(5px);
+}
+
+.dialog-option-btn:active {
+    transform: translateX(2px);
+}
