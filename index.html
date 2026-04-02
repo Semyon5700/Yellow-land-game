@@ -26,6 +26,7 @@
                     <span class="mode-desc">Все улучшения включены</span>
                 </button>
             </div>
+            <button class="close-btn" id="close-graphics-selector">Закрыть</button>
         </div>
     </div>
 
@@ -41,7 +42,21 @@
             <div class="menu-buttons">
                 <button id="resume-btn">Продолжить</button>
                 <button id="graphics-menu-btn">Графика</button>
+                <button id="main-menu-from-pause-btn">Выйти в главное меню</button>
             </div>
+        </div>
+    </div>
+
+    <!-- Главное меню -->
+    <div id="main-menu" class="hidden">
+        <div id="main-menu-overlay"></div>
+        <h1 id="main-menu-title">Yellow Land game</h1>
+        <div class="main-menu-buttons">
+            <button id="play-btn">Играть</button>
+            <button id="graphics-selector-btn">Сменить режим графики</button>
+        </div>
+        <div class="copyright-text">
+            2026 год автор Semyon5700 игра Yellow land game
         </div>
     </div>
 
@@ -69,26 +84,14 @@
     </div>
 
     <div id="crosshair" class="hidden"></div>
-    <div id="npc-message">Привет! Я фанат новой земли!</div>
     <div id="fps-counter">FPS: 60</div>
-    
-    <!-- Индикатор режима полёта -->
-    <div id="fly-indicator" class="hidden">
-        <span>✈ РЕЖИМ ПОЛЁТА</span>
-        <p>Двойное нажатие пробела для отключения</p>
-    </div>
     
     <!-- Индикатор платформы -->
     <div id="platform-indicator" class="hidden">
         <span>🟣 ПЛАТФОРМА АКТИВНА</span>
         <p>Спрыгни чтобы деактивировать</p>
     </div>
-    
-    <!-- Подсказка кнопки телепортации -->
-    <div id="teleport-prompt" class="hidden">
-        <span>Нажми E для телепортации</span>
-    </div>
-    
+
     <!-- Подсказка подбора мяча -->
     <div id="ball-pickup-prompt" class="hidden">
         <span>Нажми E чтобы взять мяч</span>
