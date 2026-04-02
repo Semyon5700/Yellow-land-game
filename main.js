@@ -1,7 +1,6 @@
 // Глобальные переменные
 let camera, scene, renderer;
 let player, npcOrange, npcPurple, npcGreen, npcPink;
-let npcMessageElement, fpsCounter;
 
 // Вспомогательный вектор для оптимизации
 const tempVector = new THREE.Vector3();
@@ -21,12 +20,12 @@ let obstacles = [];
 let villageBuildings = [];
 
 // Элементы UI
-let graphicsSelector, blocker, instructions, graphicsMenu, crosshair;
+let graphicsSelector, blocker, instructions, graphicsMenu, crosshair, mainMenu;
 let currentGraphicsMode = 'high'; // Режим по умолчанию
 
 // Элементы диалоговой системы
-let flyIndicator, dialogWindow, dialogText, dialogOptions;
-let platformIndicator, teleportPrompt;
+let dialogWindow, dialogText, dialogOptions;
+let platformIndicator;
 let ballPickupPrompt, ballThrowPrompt;
 
 // Игровые константы
@@ -50,23 +49,9 @@ let canJump = true;
 
 const playerStartY = 2;
 
-// Блокировка сообщения
-let canShowMessage = true;
-
-// Режим полёта
-let flyMode = false;
-let flyButtonEnabled = false;
-let spacePressCount = 0;
-let lastSpaceTime = 0;
-
-// Массив кнопок полёта на домиках
-let flyButtons = [];
-
-// Платформа и кнопка телепортации
+// Платформа
 let platform = null;
 let platformActive = false;
-let villageTeleportButton = null;
-let playerOnPlatform = false;
 
 // Мяч
 let ball = null;
@@ -115,22 +100,26 @@ function init() {
     instructions = document.getElementById('instructions');
     graphicsMenu = document.getElementById('graphics-menu');
     crosshair = document.getElementById('crosshair');
-    npcMessageElement = document.getElementById('npc-message');
+    mainMenu = document.getElementById('main-menu');
     fpsCounterElement = document.getElementById('fps-counter');
-    
-    // Новые элементы UI
-    flyIndicator = document.getElementById('fly-indicator');
+
+    // Элементы диалоговой системы
     dialogWindow = document.getElementById('dialog-window');
     dialogText = document.getElementById('dialog-text');
     dialogOptions = document.getElementById('dialog-options');
-    
+
     // Элементы платформы
     platformIndicator = document.getElementById('platform-indicator');
-    teleportPrompt = document.getElementById('teleport-prompt');
-    
+
     // Подсказки для мяча
     ballPickupPrompt = document.getElementById('ball-pickup-prompt');
     ballThrowPrompt = document.getElementById('ball-throw-prompt');
+
+    // Изначально скрываем меню паузы и главное меню
+    blocker.style.display = 'none';
+    if (mainMenu) {
+        mainMenu.classList.add('hidden');
+    }
 
     // Проверяем сохранённые настройки графики
     const savedMode = localStorage.getItem('graphicsMode');
@@ -143,6 +132,9 @@ function init() {
 
     // Навешиваем обработчики меню паузы
     setupPauseMenu();
+
+    // Навешиваем обработчики главного меню
+    setupMainMenu();
 
     // Сцена
     scene = new THREE.Scene();
@@ -202,9 +194,6 @@ function init() {
 
     // Создаём деревню
     createVillage();
-    
-    // Создаём кнопку телепортации в деревне
-    createVillageTeleportButton();
 
     // Генерируем деревья и горы
     generateNature();
@@ -334,9 +323,6 @@ function createHouse(x, z) {
 
     // Добавляем в препятствия для коллизий
     obstacles.push({ x, z, radius: 8, type: 'house' });
-    
-    // Добавляем кнопку полёта на крышу
-    createFlyButton(x, z);
 }
 
 // Создание деревни
@@ -441,69 +427,6 @@ function createMountain(x, z, size = 1) {
     obstacles.push({ x, z, radius: 12 * size, type: 'mountain' });
 }
 
-// Создание кнопки полёта на домике
-function createFlyButton(x, z) {
-    const buttonGeometry = new THREE.SphereGeometry(1.5, 16, 16);
-    const buttonMaterial = new THREE.MeshStandardMaterial({ 
-        color: 0x00bfff,
-        emissive: 0x0066ff,
-        emissiveIntensity: 0.5
-    });
-    const button = new THREE.Mesh(buttonGeometry, buttonMaterial);
-    // Позиция на крыше дома (крыша на высоте 24, добавляем немного)
-    button.position.set(x, 30, z);
-    button.castShadow = currentGraphicsMode === 'high';
-    scene.add(button);
-    
-    // Добавляем в массив кнопок
-    flyButtons.push({
-        mesh: button,
-        houseX: x,
-        houseZ: z,
-        active: true,
-        type: 'fly'
-    });
-}
-
-// Создание кнопки телепортации - КРАСНАЯ КНОПКА НА СТЕНЕ В ДЕРЕВНЕ
-function createVillageTeleportButton() {
-    // Позиция в деревне, недалеко от центрального дерева (-35, -35)
-    const buttonX = -25;
-    const buttonZ = -35;
-    
-    // Создаём небольшую стенку
-    const wallGeometry = new THREE.BoxGeometry(4, 6, 0.5);
-    const wallMaterial = new THREE.MeshStandardMaterial({ color: 0x666666 });
-    const wall = new THREE.Mesh(wallGeometry, wallMaterial);
-    wall.position.set(buttonX, 3, buttonZ);
-    wall.castShadow = currentGraphicsMode === 'high';
-    wall.receiveShadow = currentGraphicsMode === 'high';
-    scene.add(wall);
-    
-    // Создаём красную кнопку на стенке
-    const buttonGeometry = new THREE.CylinderGeometry(0.5, 0.5, 0.3, 16);
-    const buttonMaterial = new THREE.MeshStandardMaterial({ 
-        color: 0xff0000,
-        emissive: 0xaa0000,
-        emissiveIntensity: 0.5
-    });
-    const button = new THREE.Mesh(buttonGeometry, buttonMaterial);
-    // Кнопка на передней стороне стенки
-    button.rotation.x = Math.PI / 2;
-    button.position.set(buttonX, 3.5, buttonZ + 0.4);
-    button.castShadow = currentGraphicsMode === 'high';
-    scene.add(button);
-    
-    villageTeleportButton = {
-        mesh: button,
-        wall: wall,
-        x: buttonX,
-        z: buttonZ,
-        active: true,
-        type: 'teleport'
-    };
-}
-
 // Создание платформы - ЖЕЛЕЗНАЯ ПЛОСКАЯ ПЛАТФОРМА
 function createPlatform() {
     const platformGeometry = new THREE.BoxGeometry(40, 1, 40);
@@ -540,7 +463,6 @@ function deactivatePlatform() {
     if (platform) {
         platform.visible = false;
     }
-    playerOnPlatform = false;
 }
 
 // Создание мяча
@@ -774,8 +696,8 @@ function setupGraphicsButtons() {
             const mode = btn.getAttribute('data-mode');
             graphicsSelector.classList.add('hidden');
             applyGraphicsSettings(mode);
-            // Показываем меню инструкций
-            blocker.style.display = 'flex';
+            // Показываем главное меню
+            mainMenu.classList.remove('hidden');
         });
     });
 }
@@ -785,13 +707,17 @@ function setupPauseMenu() {
     const resumeBtn = document.getElementById('resume-btn');
     const graphicsMenuBtn = document.getElementById('graphics-menu-btn');
     const closeGraphicsMenuBtn = document.getElementById('close-graphics-menu');
+    const mainMenuFromPauseBtn = document.getElementById('main-menu-from-pause-btn');
     const graphicsModeButtons = document.querySelectorAll('#graphics-menu .graphics-btn');
 
     // Кнопка "Продолжить"
     if (resumeBtn) {
         resumeBtn.addEventListener('click', (e) => {
             e.stopPropagation();
-            document.body.requestPointerLock();
+            // Запрашиваем pointer lock только если главное меню скрыто
+            if (mainMenu.classList.contains('hidden')) {
+                document.body.requestPointerLock();
+            }
         });
     }
 
@@ -814,6 +740,16 @@ function setupPauseMenu() {
         });
     }
 
+    // Кнопка "Выйти в главное меню"
+    if (mainMenuFromPauseBtn) {
+        mainMenuFromPauseBtn.addEventListener('click', () => {
+            blocker.style.display = 'none';
+            graphicsMenu.classList.add('hidden');
+            mainMenu.classList.remove('hidden');
+            document.exitPointerLock();
+        });
+    }
+
     // Кнопки выбора режима в меню графики
     graphicsModeButtons.forEach(btn => {
         btn.addEventListener('click', () => {
@@ -825,17 +761,55 @@ function setupPauseMenu() {
     });
 }
 
+// Настройка главного меню
+function setupMainMenu() {
+    const playBtn = document.getElementById('play-btn');
+    const graphicsSelectorBtn = document.getElementById('graphics-selector-btn');
+    const closeGraphicsSelectorBtn = document.getElementById('close-graphics-selector');
+
+    // Кнопка "Играть"
+    if (playBtn) {
+        playBtn.addEventListener('click', () => {
+            mainMenu.classList.add('hidden');
+            blocker.style.display = 'flex';
+            crosshair.classList.remove('hidden');
+        });
+    }
+
+    // Кнопка "Сменить режим графики"
+    if (graphicsSelectorBtn) {
+        graphicsSelectorBtn.addEventListener('click', () => {
+            mainMenu.classList.add('hidden');
+            graphicsSelector.classList.remove('hidden');
+        });
+    }
+
+    // Кнопка закрытия окна выбора графики
+    if (closeGraphicsSelectorBtn) {
+        closeGraphicsSelectorBtn.addEventListener('click', () => {
+            graphicsSelector.classList.add('hidden');
+            mainMenu.classList.remove('hidden');
+        });
+    }
+}
+
 // Настройка Pointer Lock
 function setupPointerLock() {
     const instructions = document.getElementById('instructions');
 
     instructions.addEventListener('click', () => {
-        document.body.requestPointerLock();
+        // Запрашиваем pointer lock только если главное меню скрыто (игра активна)
+        if (mainMenu.classList.contains('hidden')) {
+            document.body.requestPointerLock();
+        }
     });
 
     document.addEventListener('keydown', (event) => {
         if (event.code === 'Enter' && document.pointerLockElement !== document.body) {
-            document.body.requestPointerLock();
+            // Запрашиваем pointer lock только если главное меню скрыто
+            if (mainMenu && mainMenu.classList.contains('hidden')) {
+                document.body.requestPointerLock();
+            }
         }
         if (event.code === 'Escape' && document.pointerLockElement === document.body) {
             document.exitPointerLock();
@@ -847,8 +821,12 @@ function setupPointerLock() {
             blocker.style.display = 'none';
             graphicsMenu.classList.add('hidden');
             crosshair.classList.remove('hidden');
+            mainMenu.classList.add('hidden');
         } else {
-            blocker.style.display = 'flex';
+            // При выходе из pointer lock показываем меню паузы, только если не в главном меню
+            if (mainMenu.classList.contains('hidden')) {
+                blocker.style.display = 'flex';
+            }
             crosshair.classList.add('hidden');
         }
     });
@@ -869,34 +847,14 @@ function setupPointerLock() {
             case 'KeyA': keyLeft = true; break;
             case 'KeyD': keyRight = true; break;
             case 'Space':
-                // Обработка двойного нажатия для отключения полёта
-                const currentTime = performance.now();
-                if (flyMode) {
-                    if (currentTime - lastSpaceTime < 300) {
-                        // Двойное нажатие - отключаем полёт
-                        flyMode = false;
-                        flyIndicator.classList.add('hidden');
-                        spacePressCount = 0;
-                    } else {
-                        spacePressCount = 1;
-                    }
-                    lastSpaceTime = currentTime;
-                } else {
-                    if (canJump && !isJumping) {
-                        verticalVelocity = jumpForce;
-                        isJumping = true;
-                        canJump = false;
-                    }
+                if (canJump && !isJumping) {
+                    verticalVelocity = jumpForce;
+                    isJumping = true;
+                    canJump = false;
                 }
                 break;
             case 'KeyE':
                 tryInteract();
-                break;
-            case 'KeyF':
-                // Активация режима полёта кнопкой F (альтернатива)
-                if (flyButtonEnabled && !flyMode) {
-                    activateFlyMode();
-                }
                 break;
         }
     });
@@ -922,29 +880,7 @@ function tryInteract() {
     if (!dialogWindow.classList.contains('hidden')) {
         return;
     }
-    
-    // Проверяем кнопку телепортации в деревне
-    if (villageTeleportButton && villageTeleportButton.active && !platformActive) {
-        const distToTeleport = player.position.distanceTo(villageTeleportButton.mesh.position);
-        if (distToTeleport < 10) {
-            activatePlatform();
-            return;
-        }
-    }
-    
-    // Проверяем кнопки полёта
-    if (!flyMode && !platformActive) {
-        for (const button of flyButtons) {
-            if (!button.active || button.type !== 'fly') continue;
-            
-            const dist = player.position.distanceTo(button.mesh.position);
-            if (dist < 8) {
-                activateFlyMode();
-                return;
-            }
-        }
-    }
-    
+
     // Проверяем мяч
     if (ball && !hasBall) {
         const distToBall = player.position.distanceTo(ball.position);
@@ -965,15 +901,6 @@ function tryInteract() {
     if (distance < 10) {
         startDialog();
     }
-}
-
-// Активация режима полёта
-function activateFlyMode() {
-    flyMode = true;
-    flyIndicator.classList.remove('hidden');
-    isJumping = false;
-    canJump = true;
-    verticalVelocity = 0;
 }
 
 // Подбор мяча
@@ -1122,6 +1049,7 @@ const dialogTree = {
             options: [
                 { text: "Привет! Расскажи о себе", next: "about" },
                 { text: "Что ты здесь делаешь?", next: "what_doing" },
+                { text: "Телепортируй меня на платформу!", next: "teleport" },
                 { text: "Пока!", next: "goodbye" }
             ]
         },
@@ -1130,6 +1058,7 @@ const dialogTree = {
             options: [
                 { text: "Хорошо, а у тебя?", next: "how_are_you" },
                 { text: "Нормально. Что нового?", next: "whats_new" },
+                { text: "Телепортируй меня на платформу!", next: "teleport" },
                 { text: "Пока!", next: "goodbye" }
             ]
         },
@@ -1138,6 +1067,7 @@ const dialogTree = {
             options: [
                 { text: "Привет! Как жизнь?", next: "how_life" },
                 { text: "Здравствуй! Есть новости?", next: "whats_new" },
+                { text: "Телепортируй меня на платформу!", next: "teleport" },
                 { text: "Пока!", next: "goodbye" }
             ]
         }
@@ -1148,6 +1078,7 @@ const dialogTree = {
             options: [
                 { text: "Что такое новая земля?", next: "new_land" },
                 { text: "А давно ты здесь?", next: "how_long" },
+                { text: "Телепортируй меня на платформу!", next: "teleport" },
                 { text: "Понятно. Пока!", next: "goodbye" }
             ]
         }
@@ -1158,6 +1089,7 @@ const dialogTree = {
             options: [
                 { text: "Здорово! А не скучно?", next: "boring" },
                 { text: "Расскажи про остров", next: "about_island" },
+                { text: "Телепортируй меня на платформу!", next: "teleport" },
                 { text: "Пока!", next: "goodbye" }
             ]
         }
@@ -1167,6 +1099,7 @@ const dialogTree = {
             text: "Жизнь прекрасна! Остров большой, есть где погулять.",
             options: [
                 { text: "А что на острове интересного?", next: "about_island" },
+                { text: "Телепортируй меня на платформу!", next: "teleport" },
                 { text: "Понятно. Пока!", next: "goodbye" }
             ]
         }
@@ -1176,6 +1109,7 @@ const dialogTree = {
             text: "Патрулирую территорию. Люблю прогуляться вокруг острова.",
             options: [
                 { text: "А зачем патрулируешь?", next: "why_patrol" },
+                { text: "Телепортируй меня на платформу!", next: "teleport" },
                 { text: "Понятно. Пока!", next: "goodbye" }
             ]
         }
@@ -1185,6 +1119,7 @@ const dialogTree = {
             text: "Да ничего особенного. Деревья растут, горы стоят... Красота!",
             options: [
                 { text: "А люди есть ещё?", next: "other_people" },
+                { text: "Телепортируй меня на платформу!", next: "teleport" },
                 { text: "Понятно. Пока!", next: "goodbye" }
             ]
         }
@@ -1194,6 +1129,7 @@ const dialogTree = {
             text: "Это земли за пределами нашего острова. Говорят, там есть другие миры!",
             options: [
                 { text: "Интересно... А ты был там?", next: "been_there" },
+                { text: "Телепортируй меня на платформу!", next: "teleport" },
                 { text: "Понятно. Пока!", next: "goodbye" }
             ]
         }
@@ -1203,6 +1139,7 @@ const dialogTree = {
             text: "О, уже очень давно! С тех пор как построили эти дома.",
             options: [
                 { text: "Кто построил дома?", next: "who_built" },
+                { text: "Телепортируй меня на платформу!", next: "teleport" },
                 { text: "Понятно. Пока!", next: "goodbye" }
             ]
         }
@@ -1212,6 +1149,7 @@ const dialogTree = {
             text: "Что ты! Здесь всегда что-то происходит. То мяч прикатится, то ещё кто-то появится.",
             options: [
                 { text: "Да, тут весело!", next: "goodbye" },
+                { text: "Телепортируй меня на платформу!", next: "teleport" },
                 { text: "Пока!", next: "goodbye" }
             ]
         }
@@ -1220,7 +1158,8 @@ const dialogTree = {
         {
             text: "Остров большой! Есть деревня, горы, леса. Красивое место!",
             options: [
-                { text: "Согласен! Пока!", next: "goodbye" }
+                { text: "Согласен! Пока!", next: "goodbye" },
+                { text: "Телепортируй меня на платформу!", next: "teleport" }
             ]
         }
     ],
@@ -1228,7 +1167,8 @@ const dialogTree = {
         {
             text: "Просто люблю порядок. Чтобы всё было на своих местах.",
             options: [
-                { text: "Похвально! Пока!", next: "goodbye" }
+                { text: "Похвально! Пока!", next: "goodbye" },
+                { text: "Телепортируй меня на платформу!", next: "teleport" }
             ]
         }
     ],
@@ -1236,7 +1176,8 @@ const dialogTree = {
         {
             text: "Конечно! Вон сколько вокруг: фиолетовый, зелёный, розовый...",
             options: [
-                { text: "Да, я видел их. Пока!", next: "goodbye" }
+                { text: "Да, я видел их. Пока!", next: "goodbye" },
+                { text: "Телепортируй меня на платформу!", next: "teleport" }
             ]
         }
     ],
@@ -1244,7 +1185,8 @@ const dialogTree = {
         {
             text: "Нет, но мечтаю когда-нибудь добраться!",
             options: [
-                { text: "Удачи! Пока!", next: "goodbye" }
+                { text: "Удачи! Пока!", next: "goodbye" },
+                { text: "Телепортируй меня на платформу!", next: "teleport" }
             ]
         }
     ],
@@ -1252,13 +1194,20 @@ const dialogTree = {
         {
             text: "Говорят, древние строители. Но это уже легенда...",
             options: [
-                { text: "Интересно! Пока!", next: "goodbye" }
+                { text: "Интересно! Пока!", next: "goodbye" },
+                { text: "Телепортируй меня на платформу!", next: "teleport" }
             ]
         }
     ],
     goodbye: [
         {
             text: "Пока! Заходи ещё!",
+            options: []
+        }
+    ],
+    teleport: [
+        {
+            text: "Хорошо! Сейчас телепортирую тебя на секретную платформу!",
             options: []
         }
     ]
@@ -1284,6 +1233,12 @@ function showDialogNode(node) {
     dialogOptions.innerHTML = '';
 
     if (node.options.length === 0) {
+        // Проверяем, не телепортация ли это
+        if (dialogText.textContent.includes("телепортирую")) {
+            // Телепортируем игрока
+            activatePlatform();
+        }
+        
         // Конец диалога - автоматически закрываем через 2 секунды
         const closeInfo = document.createElement('div');
         closeInfo.style.color = '#aaa';
@@ -1291,7 +1246,7 @@ function showDialogNode(node) {
         closeInfo.style.marginTop = '10px';
         closeInfo.textContent = 'Диалог закроется автоматически...';
         dialogOptions.appendChild(closeInfo);
-        
+
         setTimeout(() => {
             closeDialog();
         }, 2000);
@@ -1328,16 +1283,6 @@ document.addEventListener('keydown', (event) => {
         closeDialog();
     }
 });
-
-function showNPCMessage() {
-    canShowMessage = false;
-    npcMessageElement.style.display = 'block';
-
-    setTimeout(() => {
-        npcMessageElement.style.display = 'none';
-        canShowMessage = true;
-    }, 3000);
-}
 
 function onWindowResize() {
     camera.aspect = window.innerWidth / window.innerHeight;
@@ -1493,35 +1438,27 @@ function updatePlayer() {
             moveZ -= right.z * playerSpeed;
         }
 
-        if (flyMode) {
-            // В режиме полёта игрок летит без ограничений
-            player.position.x += moveX;
-            player.position.z += moveZ;
-            
-            // Вертикальное движение в режиме полёта (W/S + Space/Ctrl)
-            if (keyForward) {
-                player.position.y += playerSpeed;
-            }
-            if (keyBackward) {
-                player.position.y -= playerSpeed;
-            }
-            
-            // Ограничения по высоте в режиме полёта
-            const flyLimit = 50;
-            player.position.y = Math.max(2, Math.min(flyLimit, player.position.y));
-        } else if (platformActive) {
+        if (platformActive) {
             // Игрок на платформе
             const platformLimit = 19; // Половина размера платформы (40/2 - 1)
-            
-            // Двигаем игрока
-            player.position.x += moveX;
-            player.position.z += moveZ;
-            
+
+            // Двигаем игрока с проверкой коллизий
+            const newX = player.position.x + moveX;
+            const newZ = player.position.z + moveZ;
+
+            // Проверяем коллизии с препятствиями на платформе
+            if (!checkCollision(newX, player.position.z)) {
+                player.position.x = newX;
+            }
+            if (!checkCollision(player.position.x, newZ)) {
+                player.position.z = newZ;
+            }
+
             // Проверяем, находится ли игрок на платформе
-            const onPlatform = Math.abs(player.position.x) <= platformLimit && 
+            const onPlatform = Math.abs(player.position.x) <= platformLimit &&
                               Math.abs(player.position.z) <= platformLimit &&
                               player.position.y >= 84;
-            
+
             if (onPlatform) {
                 // Игрок на платформе - фиксируем высоту
                 player.position.y = 85;
@@ -1531,14 +1468,14 @@ function updatePlayer() {
                 // Игрок сошёл с платформы или упал - обычная физика
                 player.position.y += verticalVelocity;
                 verticalVelocity -= gravity;
-                
+
                 if (player.position.y <= 2) {
                     player.position.y = 2;
                     verticalVelocity = 0;
                     isJumping = false;
                     canJump = true;
                 }
-                
+
                 // Если игрок упал ниже платформы - деактивируем её
                 if (player.position.y < 80) {
                     deactivatePlatform();
@@ -1604,33 +1541,16 @@ function updatePlayer() {
         // Направляем камеру в сторону взгляда
         camera.lookAt(lookX, lookY, lookZ);
 
-        // Проверяем коллизии с NPC (толкание)
-        checkNPCCollisions();
-        
-        // Проверяем доступность кнопок полёта
-        flyButtonEnabled = false;
-        if (!flyMode && !platformActive) {
-            for (const button of flyButtons) {
-                if (!button.active || button.type !== 'fly') continue;
-                const dist = player.position.distanceTo(button.mesh.position);
-                if (dist < 8) {
-                    flyButtonEnabled = true;
-                    break;
-                }
-            }
+        // Проверяем коллизии с NPC (толкание) только если игрок на земле
+        if (!platformActive) {
+            checkNPCCollisions();
         }
-        
+
         // Обновляем индикаторы
         if (platformIndicator) {
             platformIndicator.classList.toggle('hidden', !platformActive);
         }
-        
-        // Показываем подсказку телепортации если рядом с кнопкой
-        if (teleportPrompt && villageTeleportButton) {
-            const distToTeleport = player.position.distanceTo(villageTeleportButton.mesh.position);
-            teleportPrompt.classList.toggle('hidden', distToTeleport >= 10 || platformActive);
-        }
-        
+
         // Подсказки для мяча
         if (ballPickupPrompt && ball && !hasBall) {
             const distToBall = player.position.distanceTo(ball.position);
@@ -1885,22 +1805,6 @@ function updatePinkNPC() {
     npcPinkHitTime = result.hitTime;
 }
 
-function updateNPCMessagePosition() {
-    // Переиспользуем глобальный вектор вместо clone()
-    tempVector.copy(npcOrange.position);
-    tempVector.y += 4;
-
-    tempVector.project(camera);
-
-    const x = (tempVector.x * 0.5 + 0.5) * window.innerWidth;
-    const y = (-(tempVector.y * 0.5) + 0.5) * window.innerHeight;
-
-    if (tempVector.z < 1) {
-        npcMessageElement.style.left = x + 'px';
-        npcMessageElement.style.top = y + 'px';
-    }
-}
-
 // Обновление FPS-счётчика
 function updateFPS() {
     frameCount++;
@@ -1923,7 +1827,6 @@ function animate() {
     updatePurpleNPC();
     updateGreenNPC();
     updatePinkNPC();
-    updateNPCMessagePosition();
     updateBall();
 
     renderer.render(scene, camera);
