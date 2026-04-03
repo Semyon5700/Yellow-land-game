@@ -29,14 +29,20 @@
 Скачайте репозиторий и откройте `index.html` в браузере.
 
 
-Системные требования
+##Системные требования
 
 Любой современный браузер с поддержкой WebGL (Chrome, Firefox, Edge).
 Зависимости
 
     Three.js r128 (MIT License)
+##Благодарности
 
-Лицензия проекта
+Проект использует Three.js (автор: Ricardo Cabello / Mr.doob и команда разработчиков).
+Three.js распространяется под лицензией MIT.
+Полный текст лицензии: Three.js.meet.License
+Copyright © 2010-2025 three.js authors
+
+##Лицензия проекта
 
 GNU General Public License v3.0 (GPL-3.0)
 Полный текст: LICENSE или gnu.org/licenses/gpl-3.0
